@@ -1,10 +1,6 @@
 from django.urls import path
-
-import parcel
+import post_machine.views
 
 urlpatterns = [
-    path('', parcel.views.parcel_view),
-    path('<machine_id>', parcel.views.one_parcel_view)
-
-
+    path('<machine_id>/', post_machine.views.locker_view),
 ]
