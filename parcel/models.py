@@ -28,5 +28,16 @@ class Parcel(models.Model):
             'status': self.status
         }
 
+    def from_client(self, data):
+        self.sender = data['sender']
+        self.post_machine_recipient = data['post_machine_recipient']
+        self.order_datetime = data['order_datetime']
+        self.update_datetime = data['update_datetime']
+        self.status = data['status']
+        self.size = data['size']
+        self.recipient = data['recipient']
+
+
+
 
 
