@@ -20,7 +20,7 @@ def parcel_form_test(request, parcel_form=None):
         form = ParcelForm(request.POST)
         if form.is_valid():
             first_parcel = models.Parcel.objects.get(pk=3)
-            first_parcel.from_client(**form.cleaned_data)
+            first_parcel.from_client(form.cleaned_data)
             first_parcel.save()
             return HttpResponse("Form submitted successfully")
         else:
