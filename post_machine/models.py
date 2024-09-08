@@ -13,3 +13,8 @@ class Locker(models.Model):
     status = models.BooleanField(default=False)
 
 
+    def __str__(self):
+        return f"size: {self.size} - PM {self.post_machine_recipient_id} - status: {self.status}"
+
+    def __str__(self):
+        return f"size: {self.size} - PM {self.post_machine_recipient_id} - status: {self.status}"
