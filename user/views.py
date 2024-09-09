@@ -1,45 +1,72 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
+from django.views import View
 
-from user.forms import LoginForm, RegisterForm
 
 
-# python manage.py migrate
+class LoginView(View):
+    def get(self, request):
+        return render(request, 'login.html')
 
-def login_page(request):
-    context = {}
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
+    def post(self, request):
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            context = {'error': "Username or password is incorrect"}
+            return render(request, 'login.html', context)
+        else:
+            login(request, user)
+            return redirect('/user/')
+
+
+class RegisterView(View):
+    def get(self, request):
+        form = UserCreationForm()
+        return render(request, 'register.html', {'form': form})
+    def post(self, request):
+        form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = authenticate( username=form.cleaned_data["username"], password=form.cleaned_data["password"])
-            if user is not None:
-                login(request, user)
-                return redirect('/user/')
-    context['message error'] = 'Invalid username or password'
-    context['form'] = LoginForm
-    return render(request, 'login.html', context=context)
+            user = form.save()
+            login(request, user)
+            return redirect('/user/')
+        else:
+            return render(request, 'register.html', {'form': form})
+
+#def login_page(request):
+#    context = {}
+#   if request.method == 'POST':
+#        form = LoginForm(request.POST)
+#        if form.is_valid():
+#            user = authenticate( username=form.cleaned_data["username"], password=form.cleaned_data["password"])
+#            if user is not None:
+#                login(request, user)
+#                return redirect('/user/')
+#    context['message error'] = 'Invalid username or password'
+#    context['form'] = LoginForm
+#    return render(request, 'login.html', context=context)
 
 
 def logout_page(request):
     logout(request)
     return redirect('/login')
 
-def register_page(request):
-    if request.method == 'POST':
-        form = RegisterForm(request.POST)
-        if form.is_valid():
-            user = User.objects.create_user(username=form.cleaned_data["username"],
-                                            email=form.cleaned_data["email"],
-                                            password=form.cleaned_data["password"],
-                                            first_name=form.cleaned_data["first_name"],
-                                            last_name=form.cleaned_data["last_name"],
-                                            )
-            user.save()
-        return redirect('/login/')
-    else:
-        return render(request, 'register.html', context={'form': RegisterForm()})
+#def register_page(request):
+#    if request.method == 'POST':
+#        form = RegisterForm(request.POST)
+#        if form.is_valid():
+#            user = User.objects.create_user(username=form.cleaned_data["username"],
+#                                            email=form.cleaned_data["email"],
+#                                            password=form.cleaned_data["password"],
+#                                            first_name=form.cleaned_data["first_name"],
+#                                            last_name=form.cleaned_data["last_name"],
+#                                            )
+#            user.save()
+#        return redirect('/login/')
+#    else:
+#        return render(request, 'register.html', context={'form': RegisterForm()})
 
 
 @login_required
