@@ -4,8 +4,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
 from django.views import View
 
-
-
 class LoginView(View):
     def get(self, request):
         return render(request, 'login.html')
@@ -26,6 +24,7 @@ class RegisterView(View):
     def get(self, request):
         form = UserCreationForm()
         return render(request, 'register.html', {'form': form})
+
     def post(self, request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -34,6 +33,7 @@ class RegisterView(View):
             return redirect('/user/')
         else:
             return render(request, 'register.html', {'form': form})
+
 
 #def login_page(request):
 #    context = {}
@@ -53,6 +53,7 @@ def logout_page(request):
     logout(request)
     return redirect('/login')
 
+
 #def register_page(request):
 #    if request.method == 'POST':
 #        form = RegisterForm(request.POST)
@@ -71,5 +72,4 @@ def logout_page(request):
 
 @login_required
 def user_page(request):
-
     return render(request, 'user_page.html', context={"username": request.user.username})
