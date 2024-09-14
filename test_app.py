@@ -92,6 +92,11 @@ class TestWeatherApp(unittest.TestCase):
             }
         )
 
+    def test_api_keys_present(self):
+        self.assertIsNotNone(API_KEY)
+        self.assertIsNotNone(GOOGLE_MAPS_API_KEY)
+        self.assertGreater(len(API_KEY), 0)
+        self.assertGreater(len(GOOGLE_MAPS_API_KEY), 0)
 
 
 if __name__ == '__main__':
