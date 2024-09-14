@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 from flask import Flask
-from app import app, get_coordinates, get_weather_data
+from app import app, get_coordinates, get_weather_data, API_KEY, GOOGLE_MAPS_API_KEY
 
 
 class TestWeatherApp(unittest.TestCase):
@@ -14,6 +14,7 @@ class TestWeatherApp(unittest.TestCase):
     @patch('app.get_weather_data')
     def test_successful_weather_request(self, mock_get_weather_data, mock_get_coordinates):
         mock_get_coordinates.return_value = {'lat': 50.45, 'lon': 30.52}
+
         mock_get_weather_data.return_value = {
             'latitude': 50.45,
             'longitude': 30.52,
@@ -24,14 +25,18 @@ class TestWeatherApp(unittest.TestCase):
         }
 
         response = self.app.post('/weather', data={'location': 'Kyiv'})
+
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Lat: 50.45, Lon: 30.52', response.data)
         self.assertIn(b'Temperature', response.data)
+        self.assertIn(GOOGLE_MAPS_API_KEY.encode(), response.data)
 
     @patch('app.get_coordinates')
     def test_unsuccessful_geocoding(self, mock_get_coordinates):
         mock_get_coordinates.return_value = None
+
         response = self.app.post('/weather', data={'location': 'Unknown City'})
+
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Error: Could not retrieve weather data for the specified location.', response.data)
 
@@ -52,6 +57,10 @@ class TestWeatherApp(unittest.TestCase):
 
         result = get_coordinates('Kyiv')
         self.assertEqual(result, {'lat': 50.45, 'lon': 30.52})
+        mock_requests_get.assert_called_with(
+            'http://api.openweathermap.org/geo/1.0/direct',
+            params={'q': 'Kyiv', 'appid': API_KEY}
+        )
 
     @patch('app.requests.get')
     def test_get_weather_data_success(self, mock_requests_get):
@@ -72,6 +81,17 @@ class TestWeatherApp(unittest.TestCase):
             'precipitation': 0,
             'location': "Lat: 50.45, Lon: 30.52"
         })
+
+        mock_requests_get.assert_called_with(
+            'https://api.openweathermap.org/data/3.0/onecall',
+            params={
+                'lat': 50.45,
+                'lon': 30.52,
+                'appid': API_KEY,
+                'units': 'metric'
+            }
+        )
+
 
 
 if __name__ == '__main__':
